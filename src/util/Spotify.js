@@ -23,7 +23,7 @@ const Spotify = {
     } else {
       //if they are not in url redirect to spotify
       const accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectURI}`;
-      window.location = accessUrl;
+      window.location.href = accessUrl;
     }
   },
 
@@ -49,6 +49,39 @@ const Spotify = {
         }
       })
     })
+  },
+
+  savePlaylist(playlist, trackURIs) {
+    if (!playlist || !trackURIs.length) {
+      return
+    }
+
+    const accessToken = Spotify.getAccessToken();
+    const headers = {Authroization: `Bearer ${accessToken}`};
+    let userId;
+
+    return fetch('https://api.spotify.com/v1/me', {headers: headers})
+      .then(response => {
+        response.json()
+      }).then(jsonResponse => {
+        userId = jsonResponse.id;
+        return fetch(`https://api.spotify.com/v1/users/${userId}/playlists`,
+        {
+          headers: headers,
+          mmethod: 'POST',
+          body: JSON.stringify({name: playlist})
+        }).then(response => {
+          response.json()
+        }).then(jsonResponse => {
+          const playlistID = jsonResponse.id;
+          return fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistID}/tracks`,
+          {
+            headers: headers,
+            method: 'POST',
+            body: JSON.stringify({uris: trackURIs})
+          })
+        })
+      });
   }
 }
 
