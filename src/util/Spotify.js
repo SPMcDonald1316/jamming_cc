@@ -1,5 +1,5 @@
 let accessToken;
-const clientId = ''; //set spotify client id
+const clientId = '718892f05d5e414fad4d42040a71c645'; //set spotify client id
 const redirectURI = 'http://localhost:3000/'; //set app redirect uri
 
 const Spotify = {
@@ -35,16 +35,13 @@ const Spotify = {
       }
     }).then(response => {
       if (response.ok) {
-        console.log(response);
         return response.json()
       } else {
-        console.log('request failed!')
       }
     }).then(jsonResponse => {
       if(!jsonResponse.tracks) {
         return [];
       }
-      console.log(jsonResponse);
       return jsonResponse.tracks.items.map(track => ({
         id: track.id,
         name: track.name,
@@ -61,7 +58,7 @@ const Spotify = {
     }
 
     const accessToken = Spotify.getAccessToken();
-    const headers = {Authroization: `Bearer ${accessToken}`};
+    const headers = {Authorization: `Bearer ${accessToken}`};
     let userId;
 
     return fetch('https://api.spotify.com/v1/me', {headers: headers})
@@ -72,7 +69,7 @@ const Spotify = {
         return fetch(`https://api.spotify.com/v1/users/${userId}/playlists`,
         {
           headers: headers,
-          mmethod: 'POST',
+          method: 'POST',
           body: JSON.stringify({name: playlist})
         }).then(response => {
           response.json()
